@@ -130,3 +130,25 @@ func TestContextPropagation(t *testing.T) {
 
 	d.Wait()
 }
+
+// Test KV store functionality
+func TestKVStore(t *testing.T) {
+	ctx := context.WithValue(context.Background(), "foo", "bar")
+	d := New(ctx)
+
+	done := make(chan struct{})
+	d.Go(func(c context.Context) {
+		if v := c.Value("foo"); v != "bar" {
+			t.Errorf("expected context value 'bar', got '%v'", v)
+		}
+		close(done)
+	}, RingNormal)
+
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatal("worker did not complete within timeout")
+	}
+
+	d.Wait()
+}

@@ -37,8 +37,9 @@ func New(ctx context.Context) *Ding {
 	ding := &Ding{
 		rings: make([]*dingRing, 0),
 	}
+	cleanCtx := context.WithoutCancel(ctx)
 	for _, ring := range []Ring{RingCritical, RingMajor, RingNormal, RingMinor} {
-		ctx, cancel := context.WithCancel(context.Background())
+		ctx, cancel := context.WithCancel(cleanCtx)
 		ding.rings = append(ding.rings, &dingRing{
 			ring:   ring,
 			ctx:    ctx,
